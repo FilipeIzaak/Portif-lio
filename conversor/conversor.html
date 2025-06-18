@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Conversor de Moedas</title>
+</head>
+<body>
+  <h1>Conversor de Moedas</h1>
+  
+  <input type="number" id="valor" placeholder="Valor" />
+
+  <select id="de">
+    <option value="USD">USD (Dólar)</option>
+    <option value="BRL">BRL (Real)</option>
+    <option value="EUR">EUR (Euro)</option>
+  </select>
+
+  <span>para</span>
+
+  <select id="para">
+    <option value="BRL">BRL (Real)</option>
+    <option value="USD">USD (Dólar)</option>
+    <option value="EUR">EUR (Euro)</option>
+  </select>
+
+  <button onclick="converter()">Converter</button>
+
+  <h2 id="resultado">Resultado: </h2>
+
+  <script>
+    async function converter() {
+      const valor = parseFloat(document.getElementById("valor").value);
+      const de = document.getElementById("de").value;
+      const para = document.getElementById("para").value;
+
+      if (isNaN(valor) || valor <= 0) {
+        document.getElementById("resultado").innerText = "Digite um valor válido.";
+        return;
+      }
+
+      const url = `https://api.exchangerate.host/convert?from=${de}&to=${para}&amount=${valor}`;
+
+      try {
+        const resposta = await fetch(url);
+        const dados = await resposta.json();
+
+        if (dados.result !== undefined) {
+          document.getElementById("resultado").innerText =
+            `Resultado: ${dados.result.toFixed(2)} ${para}`;
+        } else {
+          document.getElementById("resultado").innerText = "Erro na conversão.";
+        }
+      } catch (erro) {
+        console.error("Erro na requisição:", erro);
+        document.getElementById("resultado").innerText = "Erro ao conectar com a API.";
+      }
+    }
+  </script>
+</body>
+</html>

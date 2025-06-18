@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simulador de Parcelamento</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 10px;
+    }
+    input, button, select {
+      padding: 8px;
+      margin: 6px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #007BFF;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simulador de Parcelamento</h1>
+
+  <label for="valor">Valor Total (R$):</label>
+  <input type="number" id="valor" placeholder="Ex: 1000" min="0" step="0.01" />
+
+  <label for="parcelas">Número de Parcelas:</label>
+  <input type="number" id="parcelas" placeholder="Ex: 10" min="1" />
+
+  <label for="juros">Taxa de Juros Mensal (%):</label>
+  <input type="number" id="juros" placeholder="Ex: 1.5" min="0" step="0.01" />
+
+  <button onclick="calcularParcelas()">Calcular</button>
+
+  <div id="resultado"></div>
+
+  <script>
+    function calcularParcelas() {
+      const valor = parseFloat(document.getElementById('valor').value);
+      const n = parseInt(document.getElementById('parcelas').value);
+      const jurosMensal = parseFloat(document.getElementById('juros').value) / 100;
+
+      const resultadoDiv = document.getElementById('resultado');
+      resultadoDiv.innerHTML = '';
+
+      if (isNaN(valor) || valor <= 0) {
+        resultadoDiv.innerHTML = '<p style="color:red;">Informe um valor total válido.</p>';
+        return;
+      }
+      if (isNaN(n) || n <= 0) {
+        resultadoDiv.innerHTML = '<p style="color:red;">Informe um número válido de parcelas.</p>';
+        return;
+      }
+      if (isNaN(jurosMensal) || jurosMensal < 0) {
+        resultadoDiv.innerHTML = '<p style="color:red;">Informe uma taxa de juros válida.</p>';
+        return;
+      }
+
+      // Fórmula da parcela com juros compostos:
+      // P = [PV * i] / [1 - (1 + i)^-n]
+      // Onde:
+      // P = valor da parcela
+      // PV = valor presente (total)
+      // i = taxa de juros por período
+      // n = número de parcelas
+
+      let valorParcela;
+      if (jurosMensal === 0) {
+        valorParcela = valor / n;
+      } else {
+        valorParcela = (valor * jurosMensal) / (1 - Math.pow(1 + jurosMensal, -n));
+      }
+
+      let saldoDevedor = valor;
+
+      let tabela = `<table>
+        <thead>
+          <tr>
+            <th>Parcela</th>
+            <th>Valor da Parcela (R$)</th>
+            <th>Saldo Devedor (R$)</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      for (let i = 1; i <= n; i++) {
+        saldoDevedor -= valorParcela;
+        if (saldoDevedor < 0) saldoDevedor = 0;
+
+        tabela += `
+          <tr>
+            <td>${i}</td>
+            <td>${valorParcela.toFixed(2)}</td>
+            <td>${saldoDevedor.toFixed(2)}</td>
+          </tr>`;
+      }
+
+      tabela += '</tbody></table>';
+      resultadoDiv.innerHTML = tabela;
+    }
+  </script>
+</body>
+</html>
